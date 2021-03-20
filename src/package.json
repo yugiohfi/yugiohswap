@@ -1,0 +1,30 @@
+{
+  "name": "@0xsequence/yugiohswap",
+  "version": "3.0.2",
+  "description": "Swap protocol for ERC-1155 tokens, inspired by Uniswap",
+  "repository": "https://github.com/0xsequence/yugiohswap",
+  "homepage": "https://sequence.build",
+  "license": "Apache-2.0",
+  "main": "gen/adapter/index.js",
+  "types": "gen/typechain/index.ts",
+  "scripts": {
+  },
+  "keywords": [
+    "Ethereum",
+    "Yugiohswap",
+    "Uniswap",
+    "ERC-1155",
+    "ERC-20",
+    "Token",
+    "NFT"
+  ],
+  "peerDependencies": {
+    "ethers": "^5.0.32"
+  },
+  "dependencies": {
+    "@0xsequence/erc-1155": "^3.0.4",
+    "@0xsequence/erc20-meta-token": "^3.0.5"
+  },
+  "devDependencies": {
+  }
+}
