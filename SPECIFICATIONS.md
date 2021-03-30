@@ -1,12 +1,12 @@
-# Niftyswap Specification
+# YuGiOhswap Specification
 
 \* *Certain sections of this document were taken directly from the [Uniswap](<https://hackmd.io/@477aQ9OrQTCbVR3fq1Qzxg/HJ9jLsfTz?type=view>) documentation.*
 
 # Table of Content
 - [Overview](#overview)
 - [Contracts](#contracts)
-    + [NiftyswapExchange.sol](#yugiohswapexchangesol)
-    + [NiftyswapFactory.sol](#yugiohswapfactorysol)
+    + [YuGiOhswapExchange.sol](#yugiohswapexchangesol)
+    + [YuGiOhswapFactory.sol](#yugiohswapfactorysol)
 - [Contract Interactions](#contract-interactions)
   * [Exchanging Tokens](#exchanging-tokens)
   * [Managing Reserves Liquidity](#managing-reserves-liquidity)
@@ -37,23 +37,23 @@
 
 # Overview
 
-Niftyswap is a fork of [Uniswap](<https://hackmd.io/@477aQ9OrQTCbVR3fq1Qzxg/HJ9jLsfTz?type=view>), a protocol for automated token exchange on Ethereum. While Uniswap is for trading [ERC-20](<https://eips.ethereum.org/EIPS/eip-20>) tokens, Niftyswap is a protocol for [ERC-1155](<https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md>) tokens. Both are designed to favor ease of use and provide guaranteed access to liquidity on-chain. 
+YuGiOhswap is a fork of [Uniswap](<https://hackmd.io/@477aQ9OrQTCbVR3fq1Qzxg/HJ9jLsfTz?type=view>), a protocol for automated token exchange on Ethereum. While Uniswap is for trading [ERC-20](<https://eips.ethereum.org/EIPS/eip-20>) tokens, YuGiOhswap is a protocol for [ERC-1155](<https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md>) tokens. Both are designed to favor ease of use and provide guaranteed access to liquidity on-chain. 
 
-Most exchanges maintain an order book and facilitate matches between buyers and sellers. Niftyswap smart contracts hold liquidity reserves of various tokens, and trades are executed directly against these reserves. Prices are set automatically using the [constant product](https://ethresear.ch/t/improving-front-running-resistance-of-x-y-k-market-makers/1281)  $x*y = K$ market maker mechanism, which keeps overall reserves in relative equilibrium. Reserves are pooled between a network of liquidity providers who supply the system with tokens in exchange for a proportional share of transaction fees. 
+Most exchanges maintain an order book and facilitate matches between buyers and sellers. YuGiOhswap smart contracts hold liquidity reserves of various tokens, and trades are executed directly against these reserves. Prices are set automatically using the [constant product](https://ethresear.ch/t/improving-front-running-resistance-of-x-y-k-market-makers/1281)  $x*y = K$ market maker mechanism, which keeps overall reserves in relative equilibrium. Reserves are pooled between a network of liquidity providers who supply the system with tokens in exchange for a proportional share of transaction fees. 
 
 An important feature of Nitfyswap is the utilization of a factory/registry contract that deploys a separate exchange contract for each ERC-1155 token contract. These exchange contracts each hold independent reserves of a single fungible ERC-1155 currency and their associated ERC-1155 token id. This allows trades between the [Currency](#currency) and the ERC-1155 tokens based on the relative supplies. 
 
-This document outlines the core mechanics and technical details for Niftyswap. 
+This document outlines the core mechanics and technical details for YuGiOhswap. 
 
 # Contracts
 
-### NiftyswapExchange.sol
+### YuGiOhswapExchange.sol
 
-This contract is responsible for permitting the exchange between a single currency and all tokens in a given ERC-1155 token contract. For each token id $i$, the NiftyswapExchance contract holds a reserve of currency and a reserve of token id $i$, which are used to calculate the price of that token id $i$ denominated in the  currency. 
+This contract is responsible for permitting the exchange between a single currency and all tokens in a given ERC-1155 token contract. For each token id $i$, the YuGiOhswapExchance contract holds a reserve of currency and a reserve of token id $i$, which are used to calculate the price of that token id $i$ denominated in the  currency. 
 
-### NiftyswapFactory.sol
+### YuGiOhswapFactory.sol
 
-This contract is used to deploy a new NiftyswapExchange.sol contract for ERC-1155 contracts without one yet. It will keep a mapping of each ERC-1155 token contract address with their corresponding NiftyswapExchange.sol contract address.
+This contract is used to deploy a new YuGiOhswapExchange.sol contract for ERC-1155 contracts without one yet. It will keep a mapping of each ERC-1155 token contract address with their corresponding YuGiOhswapExchange.sol contract address.
 
 # Contract Interactions
 
@@ -85,11 +85,11 @@ function onERC1155BatchReceived(
   public returns(bytes4);
 ```
 
-The first 4 bytes of the `_data` argument indicate which of the four main [NiftyswapExchange.sol](https://github.com/0xsequence/yugiohswap/blob/master/contracts/exchange/NiftyswapExchange.sol) methods to call. How to build and encode the `_data` payload for the respective methods is explained in the [Data Encoding](#data-encoding) section. 
+The first 4 bytes of the `_data` argument indicate which of the four main [YuGiOhswapExchange.sol](https://github.com/0xsequence/yugiohswap/blob/master/contracts/exchange/YuGiOhswapExchange.sol) methods to call. How to build and encode the `_data` payload for the respective methods is explained in the [Data Encoding](#data-encoding) section. 
 
 ## Exchanging Tokens
 
-In `NiftyswapExchange.sol`, there are two methods for exchanging tokens:
+In `YuGiOhswapExchange.sol`, there are two methods for exchanging tokens:
 
 ```solidity
 /**
@@ -134,7 +134,7 @@ function _tokenToCurrency(
 
 ## Managing Reserves Liquidity
 
-In `NiftyswapExchange.sol`, there are two methods for managing token reserves supplies:
+In `YuGiOhswapExchange.sol`, there are two methods for managing token reserves supplies:
 
 ```solidity
 /**
@@ -179,7 +179,7 @@ function _removeLiquidity(
 
 # Price Calculations
 
-In Niftyswap, like Uniswap, the price of an asset is a function of a currency reserve and the corresponding token reserve. Indeed, all methods in Niftyswap enforce that the the following equality remains true: 
+In YuGiOhswap, like Uniswap, the price of an asset is a function of a currency reserve and the corresponding token reserve. Indeed, all methods in YuGiOhswap enforce that the the following equality remains true: 
 
 ​												$CurrencyReserve_i * TokenReserve_i = K$
 
@@ -211,7 +211,7 @@ Note that the implementation of these equations is subjected to arithmetic round
 
 #Liquidity Fee
 
-A liquidity provider fee of **0.5%** paid in the currency is added to every trade, increasing the corresponding $CurrencyReserve_i$. Compared to the 0.3% fee chosen by Uniswap, the 0.5% fee was chosen to ensure that token reserves are deep, which ultimately provides a better experience for users (less slippage, better price discovery and lower risk of transactions failing). This value could change for Niftyswap V2. 
+A liquidity provider fee of **0.5%** paid in the currency is added to every trade, increasing the corresponding $CurrencyReserve_i$. Compared to the 0.3% fee chosen by Uniswap, the 0.5% fee was chosen to ensure that token reserves are deep, which ultimately provides a better experience for users (less slippage, better price discovery and lower risk of transactions failing). This value could change for YuGiOhswap V2. 
 
 While the $CurrencyReserve_i$ / $TokenReserve_i$ ratio is constantly shifting, fees makes sure that the total combined reserve size increases with every trade. This functions as a payout to liquidity providers that is collected when they burn their liquidity pool tokens to withdraw their portion of total reserves.
 
@@ -219,11 +219,11 @@ This fee is asymmetric, unlike with Uniswap, which will bias the ratio in one di
 
 # Assets
 
-Within Niftyswap, there are two main types of assets: the **currency** and the **tokens**. While the currency is also expected to be an ERC-1155 token, this document always refer to the ERC-1155 token that act as currency as the "[currency](#currency)", while using the tokens that are traded against the currency are referred as "[tokens](#tokens)" or "token $i$" to indicate an arbitrary token with an id $i$. 
+Within YuGiOhswap, there are two main types of assets: the **currency** and the **tokens**. While the currency is also expected to be an ERC-1155 token, this document always refer to the ERC-1155 token that act as currency as the "[currency](#currency)", while using the tokens that are traded against the currency are referred as "[tokens](#tokens)" or "token $i$" to indicate an arbitrary token with an id $i$. 
 
 ## Currency
 
-The currency is an ERC-1155 token that is fungible (>0 decimals) that is used to price each token $i$ in a given ERC-1155 token contract. For instance, this currency could be wrapped Ether or wrapped DAI (see [erc20-meta-wrapper](https://github.com/0xsequence/erc20-meta-wrapper)). Since the currency is an ERC-1155, the NiftyswapExchange.sol contract also needs to be aware of what the currency `id` is in the currency contract. The currency can be the same contract as the Tokens contract.
+The currency is an ERC-1155 token that is fungible (>0 decimals) that is used to price each token $i$ in a given ERC-1155 token contract. For instance, this currency could be wrapped Ether or wrapped DAI (see [erc20-meta-wrapper](https://github.com/0xsequence/erc20-meta-wrapper)). Since the currency is an ERC-1155, the YuGiOhswapExchange.sol contract also needs to be aware of what the currency `id` is in the currency contract. The currency can be the same contract as the Tokens contract.
 
 Both the address and the token id of the currency can be retrieved by calling [getCurrencyInfo()](#getcurrencyinfo()). Note that if the currency and the tokens are the same ERC-1155 contract, the `currencyID <=> currencyID` pool will be prohibited for security reasons.
 
@@ -237,7 +237,7 @@ The address of the ERC-1155 token contract can be retrieved by calling [getToken
 
 All trades are done by specifying exactly how many tokens $i$ a user wants to buy or sell, without exactly knowing how much currency they will send or receive. This design choice was necessary considering ERC-1155 tokens can be non-fungible, unlike the currency which is assumed to be fungible (non-zero decimals). All trades will update the corresponding currency and token reserves correctly and will be subjected to a [liquidity provider fee](#liquidity-fee). 
 
-It is possible to buy/sell multiple tokens at once, but if any one fails, the entire trade will fail as well. This could change for Niftyswap V2.
+It is possible to buy/sell multiple tokens at once, but if any one fails, the entire trade will fail as well. This could change for YuGiOhswap V2.
 
 ### Currency to Token $i$
 
@@ -249,19 +249,19 @@ _currencyToToken(_tokenIds, _tokensBoughtAmounts, _maxCurrency, _deadline, _reci
 
 as defined in the [Exchaging Tokens](#exchanging-tokens) section and specify *exactly* how many tokens $i$ they expect to receive from the trade. This is done by specifying the token ids to purchase in the `_tokenIds` array and the amount for each token id in the `_tokensBoughtAmounts` array. 
 
-Since users can't know exactly how much currency will be required when the transaction is created, they must provide a `_maxCurrency` value which contain the maximum amount of currency they are willing to spend for the entire trade. It would've been possible for Niftyswap to support a maximum amount per token $i$, however this would increase the gas cost significantly. If proven to be desired, this could be incorporated in Niftyswap V2.
+Since users can't know exactly how much currency will be required when the transaction is created, they must provide a `_maxCurrency` value which contain the maximum amount of currency they are willing to spend for the entire trade. It would've been possible for YuGiOhswap to support a maximum amount per token $i$, however this would increase the gas cost significantly. If proven to be desired, this could be incorporated in YuGiOhswap V2.
 
-Additionally, to protect users against miners or third party relayers withholding their Niftyswap trade transactions, a `_deadline` parameter must be provided by the user. This `_deadline`is a block number after which a given transaction will revert.
+Additionally, to protect users against miners or third party relayers withholding their YuGiOhswap trade transactions, a `_deadline` parameter must be provided by the user. This `_deadline`is a block number after which a given transaction will revert.
 
-Finally, users can specify who should receive the tokens with the `_recipient` argument. This is particularly useful for third parties and proxy contracts that will interact with Niftyswap.
+Finally, users can specify who should receive the tokens with the `_recipient` argument. This is particularly useful for third parties and proxy contracts that will interact with YuGiOhswap.
 
-The `_maxCurrency` argument is specified as the amount of currency sent to the NiftyswapExchange.sol contract via the `onERC1155BatchReceived()` method :
+The `_maxCurrency` argument is specified as the amount of currency sent to the YuGiOhswapExchange.sol contract via the `onERC1155BatchReceived()` method :
 
 ```solidity
 // Tokens received need to be currency contract
-require(msg.sender == address(currency), "NiftyswapExchange#onERC1155BatchReceived: INVALID_CURRENCY_TRANSFERRED");
-require(_ids.length == 1, "NiftyswapExchange#onERC1155BatchReceived: INVALID_CURRENCY_IDS_AMOUNT");
-require(_ids[0] == currencyID, "NiftyswapExchange#onERC1155BatchReceived: INVALID_CURRENCY_ID");
+require(msg.sender == address(currency), "YuGiOhswapExchange#onERC1155BatchReceived: INVALID_CURRENCY_TRANSFERRED");
+require(_ids.length == 1, "YuGiOhswapExchange#onERC1155BatchReceived: INVALID_CURRENCY_IDS_AMOUNT");
+require(_ids[0] == currencyID, "YuGiOhswapExchange#onERC1155BatchReceived: INVALID_CURRENCY_ID");
 
 // Decode BuyTokensObj from _data to call _currencyToToken()
 BuyTokensObj memory obj;
@@ -274,10 +274,10 @@ _currencyToToken(obj.tokensBoughtIDs, obj.tokensBoughtAmounts, _amounts[0], obj.
 
 where any difference between the actual cost of the trade and the amount sent will be refunded  to the specified recipient.
 
-To call this method, users must transfer sufficient currency to the NiftyswapExchange.sol, as follow:
+To call this method, users must transfer sufficient currency to the YuGiOhswapExchange.sol, as follow:
 
 ```solidity
-// Call _currencyToToken() on NiftyswapExchange.sol contract
+// Call _currencyToToken() on YuGiOhswapExchange.sol contract
 IERC1155(CurrencyContract).safeTranferFrom(_from, yugiohswap_address, curency_id, _maxCurrency, _data);
 ```
 
@@ -292,17 +292,17 @@ _tokenToCurrency(_tokenIds, _tokensSoldAmounts, _minCurrency, _deadline, _recipi
 ```
 as defined [Exchanging Tokens](#exchanging-tokens) and specify *exactly* how many tokens $i$ they sell. This is done by specifying the token ids to sell in the `_tokenIds` array and the amount for each token id in the `_tokensSoldAmounts` array. 
 
-Since users can't know exactly how much currency they would receive when the transaction is created, they must provide a `_minCurrency` value which contain the minimum amount of currency they are willing to accept for the entire trade.  It would've been possible for Niftyswap to support a minimum amount per token $i$, however this would increase the gas cost significantly. If proven to be desired, this could be incorporated in Niftyswap V2.
+Since users can't know exactly how much currency they would receive when the transaction is created, they must provide a `_minCurrency` value which contain the minimum amount of currency they are willing to accept for the entire trade.  It would've been possible for YuGiOhswap to support a minimum amount per token $i$, however this would increase the gas cost significantly. If proven to be desired, this could be incorporated in YuGiOhswap V2.
 
-Additionally, to protect users against miners or third party relayers withholding their Niftyswap trade transactions, a `_deadline` parameter must be provided by the user. This `_deadline`is a block number after which a given transaction will revert.
+Additionally, to protect users against miners or third party relayers withholding their YuGiOhswap trade transactions, a `_deadline` parameter must be provided by the user. This `_deadline`is a block number after which a given transaction will revert.
 
-Finally, users can specify who should receive the currency with the `_recipient` argument upon the completion of the trade. This is particularly useful for third parties and proxy contracts that will interact with Niftyswap. 
+Finally, users can specify who should receive the currency with the `_recipient` argument upon the completion of the trade. This is particularly useful for third parties and proxy contracts that will interact with YuGiOhswap. 
 
-The `_tokenIds` and  `_tokensSoldAmounts` arguments are specified as the token ids and token amounts sent to the NiftyswapExchange.sol contract via the `onERC1155BatchReceived()` method :
+The `_tokenIds` and  `_tokensSoldAmounts` arguments are specified as the token ids and token amounts sent to the YuGiOhswapExchange.sol contract via the `onERC1155BatchReceived()` method :
 
 ```solidity
 // Tokens received need to be correct ERC-1155 Token contract
-require(msg.sender == address(token), "NiftyswapExchange#onERC1155BatchReceived: INVALID_TOKENS_TRANSFERRED");
+require(msg.sender == address(token), "YuGiOhswapExchange#onERC1155BatchReceived: INVALID_TOKENS_TRANSFERRED");
 
 // Decode SellTokensObj from _data to call _tokenToCurrency()
 SellTokensObj memory obj;
@@ -313,10 +313,10 @@ address recipient = obj.recipient == address(0x0) ? _from : obj.recipient;
 _tokenToCurrency(_ids, _amounts, obj.minCurrency, obj.deadline, recipient);
 ```
 
-To call this method, users must transfer the tokens to sell to the NiftyswapExchange.sol contract, as follow:
+To call this method, users must transfer the tokens to sell to the YuGiOhswapExchange.sol contract, as follow:
 
 ```solidity
-// Call _tokenToCurrency() on NiftyswapExchange.sol contract
+// Call _tokenToCurrency() on YuGiOhswapExchange.sol contract
 IERC1155(TokenContract).safeBatchTranferFrom(_from, yugiohswap_address, _ids, _amounts, _data);
 ```
 
@@ -338,13 +338,13 @@ as defined in [Managing Reserves Liquidity](#managing-reserves-liquidity) sectio
 
 Since users can't know exactly how much currency will be required when the transaction is created, they must provide a `_maxCurrency` array which contains the maximum amount of currency they are willing to add as liquidity for each token $i$. 
 
-Additionally, to protect users against miners or third party relayers withholding their Niftyswap trade transactions, a `_deadline` parameter must be provided by the user. This `_deadline`is a block number after which a given transaction will revert.
+Additionally, to protect users against miners or third party relayers withholding their YuGiOhswap trade transactions, a `_deadline` parameter must be provided by the user. This `_deadline`is a block number after which a given transaction will revert.
 
-The `_provider` argument is the address of who sent the tokens and the `_tokenIds` and  `_tokenAmounts` arguments are specified as the token ids and token amounts sent to the NiftyswapExchange.sol contract via the `onERC1155BatchReceived()` method:
+The `_provider` argument is the address of who sent the tokens and the `_tokenIds` and  `_tokenAmounts` arguments are specified as the token ids and token amounts sent to the YuGiOhswapExchange.sol contract via the `onERC1155BatchReceived()` method:
 
 ```solidity
 // Tokens received need to be correct ERC-1155 Token contract
-require(msg.sender == address(token), "NiftyswapExchange#onERC1155BatchReceived: INVALID_TOKEN_TRANSFERRED");
+require(msg.sender == address(token), "YuGiOhswapExchange#onERC1155BatchReceived: INVALID_TOKEN_TRANSFERRED");
 
 // Decode AddLiquidityObj from _data to call _addLiquidity()
 AddLiquidityObj memory obj;
@@ -354,10 +354,10 @@ AddLiquidityObj memory obj;
 _addLiquidity(_from, _ids, _amounts, obj.maxCurrency, obj.deadline);
 ```
 
-To call this method, users must transfer the tokens to add to the NiftyswapExchange.sol liquidity pools, as follow:
+To call this method, users must transfer the tokens to add to the YuGiOhswapExchange.sol liquidity pools, as follow:
 
 ```solidity
-// Call _addLiquidity() on NiftyswapExchange.sol contract
+// Call _addLiquidity() on YuGiOhswapExchange.sol contract
 IERC1155(TokenContract).safeBatchTranferFrom(_provider, yugiohswap_address, _ids, _amounts, _data);
 ```
 
@@ -375,13 +375,13 @@ as defined in [Managing Reserves Liquidity](#managing-reserves-liquidity) sectio
 
 Since users can't know exactly how much currency and tokens they will receive back when the transaction is created, they must provide a `_minCurrency` and `_minTokens` arrays, which contain the minimum amount of currency and tokens $i$ they are willing to receive when removing liquidity.
 
-Additionally, to protect users against miners or third party relayers withholding their Niftyswap trade transactions, a `_deadline` parameter must be provided by the user. This `_deadline`is a block number after which a given transaction will revert.
+Additionally, to protect users against miners or third party relayers withholding their YuGiOhswap trade transactions, a `_deadline` parameter must be provided by the user. This `_deadline`is a block number after which a given transaction will revert.
 
-The `_provider` argument is the address of who sent the liquidity pool tokens, the `_tokenIds` and `_poolTokenAmounts` arguments are specified as the token ids and liquidity pool token amounts sent to the NiftyswapExchange.sol contract via the `onERC1155BatchReceived()` method:
+The `_provider` argument is the address of who sent the liquidity pool tokens, the `_tokenIds` and `_poolTokenAmounts` arguments are specified as the token ids and liquidity pool token amounts sent to the YuGiOhswapExchange.sol contract via the `onERC1155BatchReceived()` method:
 
 ```solidity
 // Tokens received need to be YUGIOH-1155 tokens (liquidity pool tokens)
-require(msg.sender == address(this), "NiftyswapExchange#onERC1155BatchReceived: INVALID_YUGIOH_TOKENS_TRANSFERRED");
+require(msg.sender == address(this), "YuGiOhswapExchange#onERC1155BatchReceived: INVALID_YUGIOH_TOKENS_TRANSFERRED");
 
 // Decode RemoveLiquidityObj from _data to call _removeLiquidity()
 RemoveLiquidityObj memory obj;
@@ -391,18 +391,18 @@ RemoveLiquidityObj memory obj;
 _removeLiquidity(_from, _ids, _amounts, obj.minCurrency, obj.minTokens, obj.deadline);
 ```
 
-To call this method, users must transfer the liquidity pool tokens to burn to the NiftyswapExchange.sol contract, as follow:
+To call this method, users must transfer the liquidity pool tokens to burn to the YuGiOhswapExchange.sol contract, as follow:
 
 ```solidity
-// Call _removeLiquidity() on NiftyswapExchange.sol contract
-IERC1155(NiftyswapExchange).safeBatchTranferFrom(_provider, yugiohswap_address, _ids, _amounts, _data);
+// Call _removeLiquidity() on YuGiOhswapExchange.sol contract
+IERC1155(YuGiOhswapExchange).safeBatchTranferFrom(_provider, yugiohswap_address, _ids, _amounts, _data);
 ```
 
 where `_data` is defined in the [Data Encoding: _removeLiquidity()](#_removeliquidity()) section.
 
 # Data Encoding
 
-In order to call the correct NiftySwap method, users must encode a data payload containing the function signature to call and the method's receptive argument objects. All method calls must be encoded as follow:
+In order to call the correct YuGiOhSwap method, users must encode a data payload containing the function signature to call and the method's receptive argument objects. All method calls must be encoded as follow:
 
 ```solidity
 // bytes4 method_signature
@@ -530,7 +530,7 @@ struct RemoveLiquidityObj {
 
 ## Relevant Methods
 
-There methods are useful for clients and third parties to query the current state of a NiftyswapExchange.sol contract.
+There methods are useful for clients and third parties to query the current state of a YuGiOhswapExchange.sol contract.
 
 ### getCurrencyReserves()
 
@@ -586,7 +586,7 @@ Will return the address of the currency contract that is used as currency and it
 
 Some rounding errors are possible due to the nature of finite precision arithmetic the Ethereum Virtual Machine (EVM) inherits from. To account for this, some corrections needed to be implemented to make sure these rounding errors can't be exploited. 
 
-Three main functions in NiftyswapExchange.sol are subjected to rounding errors: `_addLiquidity()`, `_currencyToToken()` and `_tokenToCurrency()`. 
+Three main functions in YuGiOhswapExchange.sol are subjected to rounding errors: `_addLiquidity()`, `_currencyToToken()` and `_tokenToCurrency()`. 
 
 For `_addLiquidity()`, the rounding error can occur at
 
@@ -594,7 +594,7 @@ For `_addLiquidity()`, the rounding error can occur at
 uint256 currencyAmount = tokenAmount.mul(currencyReserve) / tokenReserve.sub(amount);
 ```
 
-where `currencyAmount` is the amount of currency that needs to be sent to NiftySwap for the given `tokenAmount` of token $i$ added to the liquidity. Rounding errors could lead to a smaller value of `currencyAmount` than expected, favoring the new liquidity provider, hence we add `1` to the amount that is required to be sent if a rounding error occurred. 
+where `currencyAmount` is the amount of currency that needs to be sent to YuGiOhSwap for the given `tokenAmount` of token $i$ added to the liquidity. Rounding errors could lead to a smaller value of `currencyAmount` than expected, favoring the new liquidity provider, hence we add `1` to the amount that is required to be sent if a rounding error occurred. 
 
 Inversely, if a rounding error occurred when calculating the `currencyAmount`, the amount of liquidity tokens to be minted will favor the new liquidity provider instead of existing liquidity providers, which is undesirable. To compensate, we calculate the amount of liquidity token to mint to new liquidity provider as follow ; 
 
@@ -611,7 +611,7 @@ uint256 denominator = (_tokenReserve.sub(_tokenBoughtAmount));
 uint256 cost = numerator / denominator;
 ```
 
-where `cost` is the amount of currency that needs to be sent to NiftySwap for the given `_tokenBoughtAmount` of token $i$ being purchased. Rounding errors could lead to a smaller value of `cost` than expected, favoring the buyer, hence we add `1` to the amount that is required to be sent if a rounding error occurred.
+where `cost` is the amount of currency that needs to be sent to YuGiOhSwap for the given `_tokenBoughtAmount` of token $i$ being purchased. Rounding errors could lead to a smaller value of `cost` than expected, favoring the buyer, hence we add `1` to the amount that is required to be sent if a rounding error occurred.
 
 For `_tokenToCurrency()`, the rounding error can occur at
 
